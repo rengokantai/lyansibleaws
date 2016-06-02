@@ -195,3 +195,200 @@ start,stop,terminate
           volume_type: gp2
     register: instance
 ```
+###### Module: EC2_AMI_Copy
+```
+---
+- hosts: localhost
+  connection: local
+  remote_user: test
+  become: yes
+  gather_facts: no
+  vars_files:
+  - cred.yml
+  tasks:
+  - name: basic creation
+    ec2_ami:
+      aws_access_key: '{{aws_id}}'
+      aws_secret_key: '{{aws_key}}'
+      region: '{{region}}'
+      source_region: '{{region}}'
+      dest_region: us-east-1
+      source_image_id: ami-12345
+      wait: no
+      name: myami2
+      tags:
+        Name: Myami2
+        Service: Test2
+    register: instance
+```
+######Module: EC2_AMI_Find
+```
+---
+- hosts: localhost
+  connection: local
+  remote_user: test
+  become: yes
+  gather_facts: no
+  vars_files:
+  - cred.yml
+  tasks:
+  - name: find
+    ec2_ami_find:
+      aws_access_key: '{{aws_id}}'
+      aws_secret_key: '{{aws_key}}'
+      region: '{{region}}'
+      owner: self
+      ami_tags:
+        Name: Myami
+        Service: Test
+      no_result_action: fail
+    register: ami_find
+  - debug: msg={{ami_find.results[0].ami_id}}
+  - debug: msg={{ami_find.results[0].name}}
+```
+######Module: EC2_Group
+```
+---
+- hosts: localhost
+  connection: local
+  remote_user: test
+  become: yes
+  gather_facts: no
+  vars_files:
+  - cred.yml
+  tasks:
+  - name: group
+    ec2_group:
+      aws_access_key: '{{aws_id}}'
+      aws_secret_key: '{{aws_key}}'
+      region: '{{region}}'
+      name: newgroup
+      description: des
+      vpc_id: vpc-8d7a84e9
+      rules:
+        - proto: tcp
+          from_port: 80
+          to_port: 80
+          cidr_ip: 0.0.0.0/0
+      rules_egress:
+        - proto: tcp
+          from_port: 80
+          to_port: 80
+          cidr_ip: 0.0.0.0/0
+
+```
+######Modules: EC2_Metric_Alarm
+threshold: must be float. period: atleast 60
+```
+---
+- hosts: localhost
+  connection: local
+  remote_user: test
+  become: yes
+  gather_facts: no
+  vars_files:
+  - cred.yml
+  tasks:
+  - name: group
+    ec2_metric_alarm:
+      aws_access_key: '{{aws_id}}'
+      aws_secret_key: '{{aws_key}}'
+      region: '{{region}}'
+      state: present
+      name: FirstTest
+      metric: "CPUUtilization"
+      namespace: "AWS/EC2"
+      statistic: Average
+      comparison: ">="
+      threshold: 20.0
+      period: 300
+      evaluation_periods: 6
+      unit: "Percent"
+      description: "test"
+      dimensions: {'InstanceId':'i-02855a9e'}
+```
+######Module: EC2_Remote_Facts
+```
+---
+- hosts: localhost
+  connection: local
+  remote_user: test
+  become: yes
+  gather_facts: no
+  vars_files:
+  - cred.yml
+  tasks:
+  - name: change state
+    ec2_remote_facts:
+      aws_access_key: '{{aws_id}}'
+      aws_secret_key: '{{aws_key}}'
+      region: '{{region}}'
+    register: remote_facts
+  - debug: msg-{{remote_facts}}
+```
+###### Module: EC2_Snapshot
+```
+---
+- hosts: localhost
+  connection: local
+  remote_user: test
+  become: yes
+  gather_facts: no
+  vars_files:
+  - cred.yml
+  tasks:
+  - name: change state
+    ec2_snapshot:
+      aws_access_key: '{{aws_id}}'
+      aws_secret_key: '{{aws_key}}'
+      region: '{{region}}'
+      instance_id: i-02855a9e
+      device_name: /dev/xvda
+      description: Root snapshot hernan ke.
+      wait: no
+    register: snapshot
+```
+######Module: EC2_Vol
+```
+---
+- hosts: localhost
+  connection: local
+  remote_user: test
+  become: yes
+  gather_facts: no
+  vars_files:
+  - cred.yml
+  tasks:
+  - name: hernan get volume
+    ec2_vol:
+      aws_access_key: '{{aws_id}}'
+      aws_secret_key: '{{aws_key}}'
+      region: '{{region}}'
+      instance: i-02855a9e
+      state: list
+    register: volume_result
+  - debug: msg={{volume_result}}
+```
+######Module: EC2_Tags  name: ec2_tag not ec2_tags
+```
+---
+- hosts: localhost
+  connection: local
+  remote_user: test
+  become: yes
+  gather_facts: no
+  vars_files:
+  - cred.yml
+  tasks:
+  - name: hernan ke tag
+    ec2_tag:
+      aws_access_key: '{{aws_id}}'
+      aws_secret_key: '{{aws_key}}'
+      region: '{{region}}'
+      resource: vol-1b89e5cb
+      state: present
+      tags:
+        Name: datake
+    register: volume_tags
+  - debug: msg={{volume_tags}}
+```
