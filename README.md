@@ -392,3 +392,182 @@ threshold: must be float. period: atleast 60
     register: volume_tags
   - debug: msg={{volume_tags}}
 ```
+######Module: EC2_VPC
+Add resource_tags: { "Environment":"Development" }
+```
+---
+- hosts: localhost
+  connection: local
+  remote_user: test
+  become: yes
+  gather_facts: no
+  vars_files:
+  - cred.yml
+  tasks:
+  - name: hernan ke vpc
+    ec2_vpc:
+      aws_access_key: '{{aws_id}}'
+      aws_secret_key: '{{aws_key}}'
+      region: '{{region}}'
+      state: present
+      cidr_block: 10.2.1.0/24
+      resource_tags: { "Environment":"Development" }
+    register: vpc
+  - debug: msg={{vpc}}
+```
+######Module: EC2 - VPC_NET
+```
+---
+- hosts: localhost
+  connection: local
+  remote_user: test
+  become: yes
+  gather_facts: no
+  vars_files:
+  - cred.yml
+  tasks:
+  - name: hernan ke vpc
+    ec2_vpc_net:
+      aws_access_key: '{{aws_id}}'
+      aws_secret_key: '{{aws_key}}'
+      region: '{{region}}'
+      name: myvpc
+      state: present
+      cidr_block: 172.17.1.0/24
+    register: vpc
+  - name: print the resulting JSON output
+    debug: msg=vpc
+~
+```
+######Module: EC2 - VPC_NET_FACTS
+```
+---
+- hosts: localhost
+  connection: local
+  remote_user: test
+  become: yes
+  gather_facts: no
+  vars_files:
+  - cred.yml
+  tasks:
+  - name: hernan ke vpc information
+    ec2_vpc_net_facts:
+      aws_access_key: '{{aws_id}}'
+      aws_secret_key: '{{aws_key}}'
+      region: '{{region}}'
+      filters:
+        vpc_id: vpc-8d7a84e9
+    register: vpcfacts
+  - name: print the JSON output
+    debug: msg={{vpcfacts}}
+```
+######Module: IAM - Identity and Access Management
+```
+---
+- hosts: localhost
+  connection: local
+  remote_user: test
+  become: yes
+  gather_facts: no
+  vars_files:
+  - cred.yml
+  tasks:
+  - name: hernan ke vpc
+    iam:
+      aws_access_key: '{{aws_id}}'
+      aws_secret_key: '{{aws_key}}'
+      region: '{{region}}'
+      iam_type: user
+      name: "{{item}}"
+      state: absent
+      password: 'password'
+      access_key_state: create
+    with_items:
+    - user1
+    - user2
+    register: output
+  - name: print the JSON output
+    debug: var=output
+```
+######Module: S3 - Working with Storage Buckets (does not work with ansible 2.1
+Failed
+```
+---
+- hosts: localhost
+  connection: local
+  remote_user: test
+  become: yes
+  gather_facts: no
+  vars_files:
+  - cred.yml
+  tasks:
+  - name: hernan ke s3
+    s3:
+      aws_access_key: '{{aws_id}}'
+      aws_secret_key: '{{aws_key}}'
+      region: '{{region}}'
+      bucket: rengokantai100
+      mode: create
+      permission: public-read-write
+    register: create_bucket
+  - name: copy file
+    s3:
+      aws_access_key: '{{aws_id}}'
+      aws_secret_key: '{{aws_key}}'
+      region: '{{region}}'
+      bucket: rengokantai100
+      src: iam.yml
+      mode: put
+      permission: public-read-write
+    register: copy_files
+  - name: print the resulting JSON output
+    debug: var=create_bucket
+  - name: print the resulting JSON output
+    debug: var=copy_files
+```
+#####Use Cases
+######Create the Outline, Create the Playbook
+```
+---
+- hosts: aws
+  remote_user: ec2-user
+  become: yes
+  gather_facts: yes
+  connection: ssh
+  tasks:
+  - name: connect
+    yum: name=* state=latest
+  - name: install httpd
+    yum: name=httpd state=latest
+  - name: deploy html
+    copy: src=index.html dest=/var/www/html/index.html owner=root group=root mod
+e=0655 backup=yes
+  - name: restart
+    service: name=httpd state=restarted
+  - name: install wget
+    yum: name=wget state=latest
+  - name: test site
+    shell: /usr/bin/wget http://localhost
+    register: res
+  - name: display res
+    debug: var=res
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files:
+  - cred.yml
+  tasks:
+  - name: take snapshot
+    ec2_snapshot:
+      aws_access_key: '{{aws_id}}'
+      aws_secret_key: '{{aws_key}}'
+      region: '{{region}}'
+      instance_id: i-02855a9e
+      device_name: /dev/xvda
+      description: Root snapshot hernan ke.
+      wait: no
+    register: snapshot
+  - name: getshapshot
+    debug: var=snapshot
+```
+######Optimize the Playbook
