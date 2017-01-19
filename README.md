@@ -1,5 +1,10 @@
 # lyansibleaws
 ## Installation and Configuration
+u16
+```
+apt install ansible python-pip -y
+pip install awscli
+```
 ### Creating the Environment - Control Server and Nodes
 create a control machine, using password only donot use ssh.
 ```
@@ -7,7 +12,8 @@ adduser test
 ssh-keygen (here need to copy local key and pri key)
 ssh-copy-id test@vultr.guest
 ```
-then config visudo, config ansible.cfg,config hosts
+then config visudo, config ansible.cfg  
+And config hosts file.
 ```
 [control]
 vultr.guest
