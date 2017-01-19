@@ -1,6 +1,6 @@
-#### lyansibleaws
-#####Installation and Configuration
-######Creating the Environment - Control Server and Nodes
+# lyansibleaws
+## Installation and Configuration
+### Creating the Environment - Control Server and Nodes
 create a control machine, using password only donot use ssh.
 ```
 adduser test
@@ -12,7 +12,7 @@ then config visudo, config ansible.cfg,config hosts
 [control]
 vultr.guest
 ```
-######Ansible and AWS Configuration - Environment Variables
+### Ansible and AWS Configuration - Environment Variables
 check first:
 ```
 env | grep AWS
@@ -20,8 +20,8 @@ aws ec2 describe-regions
 export AWS_ACCESS_KEY_ID='A'
 export AWS_SECERT_ACCESS_KEY='a'
 ```
-#####playbook
-######Ansible Playbook - Instance Run (we use aws ami (redhat))
+## playbook
+### Ansible Playbook - Instance Run (we use aws ami (redhat))
 playbook
 ```
 ---
@@ -52,7 +52,7 @@ ssh-add mykey.pem
 ansible-playbook shell.yml
 exit
 ```
-###### Module: EC2_Facts
+### Module: EC2_Facts
 cookbook:
 ```
 ---
@@ -68,7 +68,7 @@ cookbook:
     debug: msg='{{ansible_ec2_instance_type}}'
     when: ansible_ec2_instance_type != 't2.micro'
 ```
-######Module: EC2_Key
+### Module: EC2_Key
 first
 ```
 sudo pip install boto
@@ -99,7 +99,7 @@ aws_key: 123
 region: us-east-1
 subnetid:
 ```
-###### Module: EC2 - Managing Instance State
+### Module: EC2 - Managing Instance State
 start,stop,terminate
 ```
 ---
@@ -121,7 +121,7 @@ start,stop,terminate
       state: present
 
 ```
-######Module: EC2 - Provisioning New Instances
+### Module: EC2 - Provisioning New Instances
 ```
 ---
 - hosts: localhost
@@ -143,7 +143,7 @@ start,stop,terminate
       count: 2
       assign_public_ip: yes
 ```
-######Module: EC2_AMI - Basic Creation
+### Module: EC2_AMI - Basic Creation
 ```
 ---
 - hosts: localhost
@@ -167,7 +167,7 @@ start,stop,terminate
         Service: Test
     register: instance
 ```
-###### Module: EC2_AMI - Customization
+### Module: EC2_AMI - Customization
 ```
 - hosts: localhost
   connection: local
@@ -195,7 +195,7 @@ start,stop,terminate
           volume_type: gp2
     register: instance
 ```
-###### Module: EC2_AMI_Copy
+### Module: EC2_AMI_Copy
 ```
 ---
 - hosts: localhost
@@ -221,7 +221,7 @@ start,stop,terminate
         Service: Test2
     register: instance
 ```
-######Module: EC2_AMI_Find
+### Module: EC2_AMI_Find
 ```
 ---
 - hosts: localhost
@@ -246,7 +246,7 @@ start,stop,terminate
   - debug: msg={{ami_find.results[0].ami_id}}
   - debug: msg={{ami_find.results[0].name}}
 ```
-######Module: EC2_Group
+### Module: EC2_Group
 ```
 ---
 - hosts: localhost
@@ -277,7 +277,7 @@ start,stop,terminate
           cidr_ip: 0.0.0.0/0
 
 ```
-######Modules: EC2_Metric_Alarm
+### Modules: EC2_Metric_Alarm
 threshold: must be float. period: atleast 60
 ```
 ---
@@ -307,7 +307,7 @@ threshold: must be float. period: atleast 60
       description: "test"
       dimensions: {'InstanceId':'i-02855a9e'}
 ```
-######Module: EC2_Remote_Facts
+### Module: EC2_Remote_Facts
 ```
 ---
 - hosts: localhost
@@ -326,7 +326,7 @@ threshold: must be float. period: atleast 60
     register: remote_facts
   - debug: msg-{{remote_facts}}
 ```
-###### Module: EC2_Snapshot
+### Module: EC2_Snapshot
 ```
 ---
 - hosts: localhost
@@ -348,7 +348,7 @@ threshold: must be float. period: atleast 60
       wait: no
     register: snapshot
 ```
-######Module: EC2_Vol
+### Module: EC2_Vol
 ```
 ---
 - hosts: localhost
@@ -369,7 +369,7 @@ threshold: must be float. period: atleast 60
     register: volume_result
   - debug: msg={{volume_result}}
 ```
-######Module: EC2_Tags  name: ec2_tag not ec2_tags
+### Module: EC2_Tags  name: ec2_tag not ec2_tags
 ```
 ---
 - hosts: localhost
@@ -392,7 +392,7 @@ threshold: must be float. period: atleast 60
     register: volume_tags
   - debug: msg={{volume_tags}}
 ```
-######Module: EC2_VPC
+### Module: EC2_VPC
 Add resource_tags: { "Environment":"Development" }
 ```
 ---
@@ -415,7 +415,7 @@ Add resource_tags: { "Environment":"Development" }
     register: vpc
   - debug: msg={{vpc}}
 ```
-######Module: EC2 - VPC_NET
+### Module: EC2 - VPC_NET
 ```
 ---
 - hosts: localhost
@@ -439,7 +439,7 @@ Add resource_tags: { "Environment":"Development" }
     debug: msg=vpc
 ~
 ```
-######Module: EC2 - VPC_NET_FACTS
+### Module: EC2 - VPC_NET_FACTS
 ```
 ---
 - hosts: localhost
@@ -461,7 +461,7 @@ Add resource_tags: { "Environment":"Development" }
   - name: print the JSON output
     debug: msg={{vpcfacts}}
 ```
-######Module: IAM - Identity and Access Management
+### Module: IAM - Identity and Access Management
 ```
 ---
 - hosts: localhost
@@ -489,7 +489,7 @@ Add resource_tags: { "Environment":"Development" }
   - name: print the JSON output
     debug: var=output
 ```
-######Module: S3 - Working with Storage Buckets (does not work with ansible 2.1
+### Module: S3 - Working with Storage Buckets (does not work with ansible 2.1
 Failed
 ```
 ---
@@ -516,6 +516,9 @@ Failed
       aws_secret_key: '{{aws_key}}'
       region: '{{region}}'
       bucket: rengokantai100
+      --- destination in s3 bucket.
+      object: iam.yml
+      --- local
       src: iam.yml
       mode: put
       permission: public-read-write
@@ -525,8 +528,8 @@ Failed
   - name: print the resulting JSON output
     debug: var=copy_files
 ```
-#####Use Cases
-######Create the Outline, Create the Playbook
+## Use Cases
+### Create the Outline, Create the Playbook
 ```
 ---
 - hosts: aws
@@ -570,4 +573,4 @@ e=0655 backup=yes
   - name: getshapshot
     debug: var=snapshot
 ```
-######Optimize the Playbook
+### Optimize the Playbook
